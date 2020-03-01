@@ -32,7 +32,7 @@ public:
     : ID(ConsumerID++), BufferRef(BufferRef),
       CooldownTime(CooldownTime), ShouldStop(ShouldStop) { }
 
-  void takeTask() {
+  void takeTasks() {
     while (! ShouldStop) {
       if (auto Task = BufferRef.pop()) {
         SyncPrint("Consumer #", ID, ": successfully got task #", Task.value(),
