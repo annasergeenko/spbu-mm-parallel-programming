@@ -15,7 +15,7 @@
 template <typename T>
 class Buffer {
   /// Mutex for synchronizing access to the Tasks queue.
-  std::mutex QueueLock;
+  std::mutex QueueMutex;
   std::deque<T> Tasks;
 
 public:
@@ -24,11 +24,8 @@ public:
   template <typename UR = T,
             typename TypeMustBeT =
               std::enable_if<std::is_same<std::remove_reference<UR>, T>::value>>
-  void push(UR&& Task) noexcept(
-      std::is_nothrow_copy_constructible<T>::value &&\
-      std::is_nothrow_move_constructible<T>::value
-      ) {
-    std::lock_guard<std::mutex> Lock(QueueLock);
+  void push(UR&& Task) {
+    std::lock_guard<std::mutex> Lock(QueueMutex);
     Tasks.push_back(std::forward<UR>(Task));
     /// If there is only one element in the queue after inserting,
     /// somebody waiting for tasks may want to be notified.
@@ -39,7 +36,7 @@ public:
     if (Tasks.empty())
       return std::nullopt;
 
-    std::lock_guard<std::mutex> Lock(QueueLock);
+    std::lock_guard<std::mutex> Lock(QueueMutex);
 
     auto tmp = std::make_optional<T>(std::move(Tasks.front()));
     Tasks.pop_front();
