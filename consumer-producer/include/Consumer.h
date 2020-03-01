@@ -7,12 +7,14 @@
 
 #include <mutex>
 #include <thread>
+#include <vector>
 
 #include "Utils.h"
 #include "Buffer.h"
 
 namespace {
 unsigned ConsumerID = 0;
+constexpr auto DefaultConsumerCooldown = std::chrono::milliseconds(100);
 }
 
 
@@ -21,22 +23,24 @@ class Consumer {
   const unsigned ID;
   Buffer<T>& BufferRef;
   const std::chrono::milliseconds CooldownTime;
+  std::vector<T> GainedTasks;
   const bool& ShouldStop;
   /// Mutex to wait until condition variable is woken up
   std::mutex CVMutex;
 
 public:
   Consumer(Buffer<T>& BufferRef,
-           const std::chrono::milliseconds CooldownTime,
-           const bool& ShouldStop)
-    : ID(ConsumerID++), BufferRef(BufferRef),
-      CooldownTime(CooldownTime), ShouldStop(ShouldStop) { }
+           const bool& ShouldStop,
+           const std::chrono::milliseconds CooldownTime = DefaultConsumerCooldown)
+    : ID(ConsumerID++), BufferRef(BufferRef), CooldownTime(CooldownTime),
+      GainedTasks(), ShouldStop(ShouldStop) { }
 
-  void takeTasks() {
+  std::vector<T> takeTasks() {
     while (! ShouldStop) {
       if (auto Task = BufferRef.pop()) {
         SyncPrint("Consumer #", ID, ": successfully got task #", Task.value(),
                   " . Sleep for '", CooldownTime.count(), "' ms...\n");
+        GainedTasks.push_back(std::move(Task.value()));
         std::this_thread::sleep_for(CooldownTime);
         SyncPrint("Consumer #", ID, ": woken up\n");
       } else {
@@ -47,6 +51,7 @@ public:
                   " produced task one more time\n");
       }
     }
+    return GainedTasks;
   }
 };
 

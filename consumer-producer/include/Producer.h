@@ -14,6 +14,7 @@
 
 namespace {
 unsigned ProducerID = 0;
+constexpr auto DefaultProducerCooldown = std::chrono::milliseconds(100);
 }
 
 
@@ -29,8 +30,8 @@ public:
   Producer(
       Container&& WorkElements,
       Buffer<T>& BufferRef,
-      const std::chrono::milliseconds CooldownTime,
-      const bool& ShouldStop)
+      const bool& ShouldStop,
+      const std::chrono::milliseconds CooldownTime = DefaultProducerCooldown)
     : ID(ProducerID++), WorkElements(std::forward<Container>(WorkElements)),
       BufferRef(BufferRef), CooldownTime(CooldownTime),
       ShouldStop(ShouldStop) { }
@@ -38,7 +39,7 @@ public:
   Producer(const Producer&) = delete;
   Producer& operator=(const Producer&) = delete;
 
-  void start() {
+  std::vector<T> start() {
     auto WorkElemIter = WorkElements.begin();
 
     if (WorkElemIter == WorkElements.end()) {
@@ -46,17 +47,25 @@ public:
       return;
     }
 
+    std::vector<T> ProducedTasks;
     /// loop over $WorkElements container until $ShouldStop is false
     while (! ShouldStop) {
-      SyncPrint("Producer #", ID, ": push the task '",
-                *WorkElemIter, "'.\n");
-      BufferRef.push(*WorkElemIter);
-      if (++WorkElemIter == WorkElements.end())
-        WorkElemIter = WorkElements.begin();
-      SyncPrint("Producer #", ID, ": sleep for '",
-                CooldownTime.count(), "' ms...\n");
-      std::this_thread::sleep_for(CooldownTime);
+      if (WorkElemIter == WorkElements.end()) {
+        SyncPrint("Producer #", ID, " has produced all his tasks",
+                  ", now waiting for terminating...");
+        std::this_thread::sleep_for(DefaultProducerCooldown);
+      } else {
+        SyncPrint("Producer #", ID, ": push the task '",
+                  *WorkElemIter, "'.\n");
+        BufferRef.push(*WorkElemIter);
+        /// Save produced Task
+        ProducedTasks.push_back(*WorkElemIter++);
+        SyncPrint("Producer #", ID, ": sleep for '",
+                  CooldownTime.count(), "' ms...\n");
+        std::this_thread::sleep_for(CooldownTime);
+      }
     }
+    return ProducedTasks;
   }
 };
 
