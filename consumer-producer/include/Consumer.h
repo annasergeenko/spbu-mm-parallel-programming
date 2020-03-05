@@ -44,8 +44,6 @@ public:
       } else {
         SyncPrint("Consumer #", ID, ": did not find available task, waiting...\n");
         std::this_thread::sleep_for(DefaultConsumerCooldown);
-        SyncPrint("Consumer #", ID, ": going to try getting",
-                  " produced task one more time\n");
       }
     }
     SyncPrint("Consumer #", ID, ": terminated\n");
