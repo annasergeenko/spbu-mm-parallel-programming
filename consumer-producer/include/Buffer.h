@@ -33,10 +33,10 @@ public:
   }
 
   std::optional<T> pop() {
+    std::lock_guard<std::mutex> Lock(QueueMutex);
+
     if (Tasks.empty())
       return std::nullopt;
-
-    std::lock_guard<std::mutex> Lock(QueueMutex);
 
     auto tmp = std::make_optional<T>(std::move(Tasks.front()));
     Tasks.pop_front();
