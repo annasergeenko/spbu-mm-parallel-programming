@@ -24,13 +24,11 @@ class Consumer {
   Buffer<T>& BufferRef;
   const std::chrono::milliseconds CooldownTime;
   std::vector<T> GainedTasks;
-  const bool& ShouldStop;
-  /// Mutex to wait until condition variable is woken up
-  std::mutex CVMutex;
+  bool& ShouldStop;
 
 public:
   Consumer(Buffer<T>& BufferRef,
-           const bool& ShouldStop,
+           bool& ShouldStop,
            const std::chrono::milliseconds CooldownTime = DefaultConsumerCooldown)
     : ID(ConsumerID++), BufferRef(BufferRef), CooldownTime(CooldownTime),
       GainedTasks(), ShouldStop(ShouldStop) { }
@@ -38,19 +36,19 @@ public:
   std::vector<T> takeTasks() {
     while (! ShouldStop) {
       if (auto Task = BufferRef.pop()) {
-        SyncPrint("Consumer #", ID, ": successfully got task #", Task.value(),
-                  " . Sleep for '", CooldownTime.count(), "' ms...\n");
+        SyncPrint("Consumer #", ID, ": successfully got task ", Task.value(),
+                  ". Sleep for ", CooldownTime.count(), " ms...\n");
         GainedTasks.push_back(std::move(Task.value()));
         std::this_thread::sleep_for(CooldownTime);
         SyncPrint("Consumer #", ID, ": woken up\n");
       } else {
         SyncPrint("Consumer #", ID, ": did not find available task, waiting...\n");
-        std::unique_lock<std::mutex> UniqueLock(CVMutex);
-        BufferRef.CV.wait(UniqueLock);
+        std::this_thread::sleep_for(DefaultConsumerCooldown);
         SyncPrint("Consumer #", ID, ": going to try getting",
                   " produced task one more time\n");
       }
     }
+    SyncPrint("Consumer #", ID, ": terminated\n");
     return GainedTasks;
   }
 };

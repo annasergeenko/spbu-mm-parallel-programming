@@ -14,22 +14,17 @@
 
 template <typename T>
 class Buffer {
-  /// Mutex for synchronizing access to the Tasks queue.
+  // Mutex for synchronizing access to the Tasks queue
   std::mutex QueueMutex;
   std::deque<T> Tasks;
 
 public:
-  std::condition_variable CV;
-
   template <typename UR = T,
             typename TypeMustBeT =
               std::enable_if<std::is_same<std::remove_reference<UR>, T>::value>>
   void push(UR&& Task) {
     std::lock_guard<std::mutex> Lock(QueueMutex);
     Tasks.push_back(std::forward<UR>(Task));
-    /// If there is only one element in the queue after inserting,
-    /// somebody waiting for tasks may want to be notified.
-    if (Tasks.size() == 1) CV.notify_all();
   }
 
   std::optional<T> pop() {
