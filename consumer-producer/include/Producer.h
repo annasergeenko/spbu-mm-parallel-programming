@@ -6,6 +6,7 @@
 #define CONSUMER_PRODUCER_INCLUDE_PRODUCER_H
 
 #include <deque>
+#include <vector>
 #include <chrono>
 #include <thread>
 
@@ -23,48 +24,43 @@ class Producer {
   const unsigned ID;
   Container WorkElements;
   Buffer<T>& BufferRef;
+  std::vector<T> ProducedTasks;
   const std::chrono::milliseconds CooldownTime;
-  const bool& ShouldStop;
+  bool& ShouldStop;
 
 public:
   Producer(
       Container&& WorkElements,
       Buffer<T>& BufferRef,
-      const bool& ShouldStop,
+      bool& ShouldStop,
       const std::chrono::milliseconds CooldownTime = DefaultProducerCooldown)
-    : ID(ProducerID++), WorkElements(std::forward<Container>(WorkElements)),
-      BufferRef(BufferRef), CooldownTime(CooldownTime),
-      ShouldStop(ShouldStop) { }
+    : ID(ProducerID++), WorkElements(std::move(WorkElements)),
+      BufferRef(BufferRef), ProducedTasks(),
+      CooldownTime(CooldownTime), ShouldStop(ShouldStop) { }
 
-  Producer(const Producer&) = delete;
-  Producer& operator=(const Producer&) = delete;
 
   std::vector<T> start() {
-    auto WorkElemIter = WorkElements.begin();
-
-    if (WorkElemIter == WorkElements.end()) {
+    if (WorkElements.empty()) {
       SyncPrint("Nothing to do for producer ", ID, '\n');
-      return;
+      return {};
     }
 
-    std::vector<T> ProducedTasks;
-    /// loop over $WorkElements container until $ShouldStop is false
+    auto WorkElemIter = WorkElements.begin();
+
     while (! ShouldStop) {
       if (WorkElemIter == WorkElements.end()) {
-        SyncPrint("Producer #", ID, " has produced all his tasks",
-                  ", now waiting for terminating...");
+        SyncPrint("Producer #", ID, ": produced all tasks, ",
+                  "waiting for termination...\n");
         std::this_thread::sleep_for(DefaultProducerCooldown);
       } else {
-        SyncPrint("Producer #", ID, ": push the task '",
-                  *WorkElemIter, "'.\n");
+        SyncPrint("Producer #", ID, ": push the task ", *WorkElemIter,
+                  ". Now sleep for ", CooldownTime.count(), " ms...\n");
         BufferRef.push(*WorkElemIter);
-        /// Save produced Task
-        ProducedTasks.push_back(*WorkElemIter++);
-        SyncPrint("Producer #", ID, ": sleep for '",
-                  CooldownTime.count(), "' ms...\n");
+        ProducedTasks.push_back(std::move(*WorkElemIter++));
         std::this_thread::sleep_for(CooldownTime);
       }
     }
+    SyncPrint("Producer #", ID, ": terminated\n");
     return ProducedTasks;
   }
 };
