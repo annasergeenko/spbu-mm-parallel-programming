@@ -11,5 +11,7 @@ endif()
 
 find_package(Threads REQUIRED)
 
-add_executable(MultiThreading main.cpp queue_on_list.h producer.h consumer.h)
+set(SRC_CODE queue_on_list.h producer.h consumer.h config_runner.h)
+
+add_executable(MultiThreading main.cpp ${SRC_CODE})
 target_link_libraries(MultiThreading Threads::Threads)
