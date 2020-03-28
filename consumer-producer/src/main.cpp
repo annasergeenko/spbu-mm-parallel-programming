@@ -11,7 +11,7 @@
 
 int main() {
   Buffer<unsigned> Buf;
-  bool ShouldStop(false);
+  volatile bool ShouldStop(false);
 
   std::cout << "Press <Enter> key after user input "
             << "to finish execution of the program.\n";

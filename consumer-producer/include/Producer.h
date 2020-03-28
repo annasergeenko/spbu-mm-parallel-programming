@@ -26,13 +26,13 @@ class Producer {
   Buffer<T>& BufferRef;
   std::vector<T> ProducedTasks;
   const std::chrono::milliseconds CooldownTime;
-  bool& ShouldStop;
+  volatile bool& ShouldStop;
 
 public:
   Producer(
       Container&& WorkElements,
       Buffer<T>& BufferRef,
-      bool& ShouldStop,
+      volatile bool& ShouldStop,
       const std::chrono::milliseconds CooldownTime = DefaultProducerCooldown)
     : ID(ProducerID++), WorkElements(std::move(WorkElements)),
       BufferRef(BufferRef), ProducedTasks(),

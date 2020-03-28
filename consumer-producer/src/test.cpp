@@ -38,7 +38,7 @@ void testBuffer() {
 
 void testProducer() {
   Buffer<int> Buf;
-  bool ShouldStop(false);
+  volatile bool ShouldStop(false);
 
   std::vector<int> Reference{1, 2, 3, 4, 5};
 
@@ -62,7 +62,7 @@ void testProducer() {
 
 void testConsumer() {
   Buffer<int> Buf;
-  bool ShouldStop(false);
+  volatile bool ShouldStop(false);
 
   std::vector<int> Reference{1, 2, 3, 4, 5};
   for (const auto Elem : Reference)

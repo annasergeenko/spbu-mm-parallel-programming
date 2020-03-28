@@ -24,11 +24,11 @@ class Consumer {
   Buffer<T>& BufferRef;
   const std::chrono::milliseconds CooldownTime;
   std::vector<T> GainedTasks;
-  bool& ShouldStop;
+  volatile bool& ShouldStop;
 
 public:
   Consumer(Buffer<T>& BufferRef,
-           bool& ShouldStop,
+           volatile bool& ShouldStop,
            const std::chrono::milliseconds CooldownTime = DefaultConsumerCooldown)
     : ID(ConsumerID++), BufferRef(BufferRef), CooldownTime(CooldownTime),
       GainedTasks(), ShouldStop(ShouldStop) { }
