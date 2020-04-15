@@ -1,5 +1,6 @@
 #pragma once
 
+#include <atomic>
 #include <thread>
 #include <vector>
 
@@ -16,9 +17,9 @@ public:
     {};
 
     // should_stop is managed in an another thread, but not in this
-    void writing_to_queue_until(Queue_on_list<T>& queue, const bool& should_stop) {
+    void writing_to_queue_until(Queue_on_list<T>& queue, const std::atomic<bool>& should_stop) {
         for (const auto& elem : data_to_write) {
-            if (should_stop) {
+            if (should_stop.load(std::memory_order_relaxed)) {
                 return;
             }
             queue.enqueue(elem);

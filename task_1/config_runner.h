@@ -2,6 +2,7 @@
 #include <future>
 #include <iostream>
 #include <algorithm>
+#include <atomic>
 
 #include "queue_on_list.h"
 #include "producer.h"
@@ -44,7 +45,7 @@ bool run_config(const Config& cfg) {
     }
 
     auto queue = Queue_on_list<Data_type>();
-    bool should_stop = false;
+    std::atomic<bool> should_stop = false;
 
     auto threads_for_producers = std::vector<std::future<void>>();
     threads_for_producers.reserve(producers.size());
@@ -65,7 +66,7 @@ bool run_config(const Config& cfg) {
     }
 
     cfg.delay_func();
-    should_stop = true;
+    should_stop.store(true, std::memory_order_relaxed);
 
     for (auto& thr : threads_for_producers) {
         thr.get();

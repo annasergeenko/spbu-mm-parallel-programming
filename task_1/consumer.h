@@ -1,5 +1,6 @@
 #pragma once
 
+#include <atomic>
 #include <thread>
 #include <vector>
 
@@ -16,8 +17,8 @@ public:
     {};
 
     // should_stop is managed in another thread, but not in this
-    void reading_from_queue_until(Queue_on_list<T>& queue, const bool& should_stop) {
-        while (!should_stop) {
+    void reading_from_queue_until(Queue_on_list<T>& queue, const std::atomic<bool>& should_stop) {
+        while (!should_stop.load(std::memory_order_relaxed)) {
             if (auto opt_res = queue.dequeue(); opt_res.has_value()) {
                 read_data.push_back(*opt_res);
                 std::this_thread::sleep_for(pause_period);
