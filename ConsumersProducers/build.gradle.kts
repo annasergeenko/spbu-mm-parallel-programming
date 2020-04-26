@@ -11,7 +11,12 @@ repositories {
 
 dependencies {
     implementation(kotlin("stdlib-jdk8"))
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.3.4")
+    testImplementation("org.junit.jupiter:junit-jupiter:5.6.2")
+    testImplementation("org.jetbrains.kotlin:kotlin-test:1.3.72")
+}
+
+tasks.test {
+    useJUnitPlatform()
 }
 
 tasks {

@@ -8,6 +8,7 @@ class Channel<T>: Producer<T>, Consumer<T> {
     var isActive = true
 
     override fun produce(value: T) {
+        if (!isActive) throw ChannelClosedException()
         lock.withLock {
             pool.add(value)
             emptyCondition.signalAll()
