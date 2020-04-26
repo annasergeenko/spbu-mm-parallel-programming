@@ -1,3 +1,4 @@
+import task.IMyTask
 import java.io.Closeable
 import java.util.*
 import java.util.concurrent.locks.ReentrantLock
@@ -5,9 +6,9 @@ import kotlin.concurrent.withLock
 
 class ThreadPool(threadCount: Int): Closeable {
     private val taskQueue: Queue<IMyTask<Any?>> = LinkedList()
-    private val workers = (0 until threadCount).map { Worker().apply { this.start() } }
     private val lock = ReentrantLock()
     private val hasTask = lock.newCondition()
+    private val workers = (0 until threadCount).map { Worker().apply { this.start() } }
     private var isStopped = false
 
     private inner class Worker: Thread() {
@@ -15,27 +16,35 @@ class ThreadPool(threadCount: Int): Closeable {
 
         override fun run() {
             while (true) {
-                while (taskQueue.isEmpty()) hasTask.await()
                 lock.withLock {
-                    val task = taskQueue.poll()
-                    running = true
-                    task.result = task.invoke() // TODO handle exception
-                    running = false
+                    while (taskQueue.isEmpty() && !isStopped) hasTask.await()
+                    if (isStopped) return
+                    withRun { taskQueue.poll().call() } // TODO handle exception
                 }
             }
         }
 
+        private fun withRun(block: () -> Any?): Any? {
+            return try {
+                running = true
+                block()
+            } finally {
+                running = false
+            }
+        }
     }
 
-    fun enqueue(task: IMyTask<Any?>) {
+    @Suppress("UNCHECKED_CAST")
+    fun <T> enqueue(task: IMyTask<T>) {
         if (isStopped) throw IllegalStateException("ThreadPool was stopped")
         lock.withLock {
-            taskQueue.offer(task)
+            taskQueue.offer(task as IMyTask<Any?>)
             hasTask.signalAll()
         }
     }
 
     override fun close() {
         isStopped = true
+        lock.withLock { hasTask.signalAll() }
     }
 }
