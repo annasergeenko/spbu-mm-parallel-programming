@@ -17,14 +17,12 @@ class Task<T>(private val task: () -> T): IMyTask<T> {
         return@lazy _exception?.let { throw AggregateException(it) } ?: _result!!
     }
 
-    override fun call(): T {
+    override fun call() {
         try {
             _result = task.invoke()
             lock.withLock { resultComputed.signalAll() }
-            return _result!!
         } catch (e: Exception) {
             _exception = e
-            throw AggregateException(e)
         } finally {
             isCompleted = true
         }

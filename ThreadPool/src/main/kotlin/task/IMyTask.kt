@@ -2,7 +2,7 @@ package task
 
 import java.util.concurrent.Callable
 
-interface IMyTask<T>: Callable<T> {
+interface IMyTask<T>: Callable<Unit> {
     var isCompleted: Boolean
     val result: T
 
