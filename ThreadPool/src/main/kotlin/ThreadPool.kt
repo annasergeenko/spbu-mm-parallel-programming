@@ -17,11 +17,15 @@ class ThreadPool(threadCount: Int): Closeable {
 
         override fun run() {
             while (true) {
-                lock.withLock {
+                val task = lock.withLock {
                     while (taskQueue.isEmpty() && !isStopped) hasTask.await()
-                    if (isStopped) return
-                    withRun { taskQueue.poll().call() }
+                    if (isStopped) {
+                        this.interrupt()
+                        return
+                    }
+                    taskQueue.poll()
                 }
+                withRun { task.call() }
             }
         }
 
