@@ -14,6 +14,8 @@ class Task<T>(private val task: () -> T): IMyTask<T> {
         return@lazy _result!!
     }
 
+    var previousTask: IMyTask<Any?>? = null
+
     override fun call(): T {
         _result = task.invoke()
         isCompleted = true
@@ -21,7 +23,8 @@ class Task<T>(private val task: () -> T): IMyTask<T> {
         return _result!!
     }
 
+    @Suppress("UNCHECKED_CAST")
     override fun <E> continueWith(func: (T) -> E): IMyTask<E> {
-        TODO("Not yet implemented")
+        return Task { func(result) }.apply { previousTask = this@Task as IMyTask<Any?> }
     }
 }

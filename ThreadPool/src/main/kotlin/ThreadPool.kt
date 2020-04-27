@@ -1,4 +1,5 @@
 import task.IMyTask
+import task.Task
 import java.io.Closeable
 import java.util.*
 import java.util.concurrent.locks.ReentrantLock
@@ -38,7 +39,8 @@ class ThreadPool(threadCount: Int): Closeable {
     fun <T> enqueue(task: IMyTask<T>) {
         if (isStopped) throw IllegalStateException("ThreadPool was stopped")
         lock.withLock {
-            taskQueue.offer(task as IMyTask<Any?>)
+            val tasks = generateSequence(task as IMyTask<Any?>) { (it as? Task)?.previousTask }.filterNotNull()
+            taskQueue.addAll(tasks.toList().reversed())
             hasTask.signalAll()
         }
     }
