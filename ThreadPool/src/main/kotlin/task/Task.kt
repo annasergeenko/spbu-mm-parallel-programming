@@ -7,20 +7,27 @@ class Task<T>(private val task: () -> T): IMyTask<T> {
     private val lock = ReentrantLock()
     private val resultComputed = lock.newCondition()
 
-    override var isCompleted: Boolean = false
+    var previousTask: IMyTask<Any?>? = null
+    private var _exception: Exception? = null
     private var _result: T? = null
+
+    override var isCompleted: Boolean = false
     override val result: T by lazy {
         if (!isCompleted) lock.withLock { resultComputed.await() }
-        return@lazy _result!!
+        return@lazy _exception?.let { throw AggregateException(it) } ?: _result!!
     }
 
-    var previousTask: IMyTask<Any?>? = null
-
     override fun call(): T {
-        _result = task.invoke()
-        isCompleted = true
-        lock.withLock { resultComputed.signalAll() }
-        return _result!!
+        try {
+            _result = task.invoke()
+            lock.withLock { resultComputed.signalAll() }
+            return _result!!
+        } catch (e: Exception) {
+            _exception = e
+            throw AggregateException(e)
+        } finally {
+            isCompleted = true
+        }
     }
 
     @Suppress("UNCHECKED_CAST")

@@ -20,7 +20,7 @@ class ThreadPool(threadCount: Int): Closeable {
                 lock.withLock {
                     while (taskQueue.isEmpty() && !isStopped) hasTask.await()
                     if (isStopped) return
-                    withRun { taskQueue.poll().call() } // TODO handle exception
+                    withRun { taskQueue.poll().call() }
                 }
             }
         }
