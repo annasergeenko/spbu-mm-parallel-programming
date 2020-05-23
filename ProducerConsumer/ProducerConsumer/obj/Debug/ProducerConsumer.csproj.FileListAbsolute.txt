@@ -1,0 +1,13 @@
+D:\University\1master_2\ParallelProgr\ProducerConsumer\ProducerConsumer\bin\Debug\ProducerConsumer.exe.config
+D:\University\1master_2\ParallelProgr\ProducerConsumer\ProducerConsumer\bin\Debug\ProducerConsumer.exe
+D:\University\1master_2\ParallelProgr\ProducerConsumer\ProducerConsumer\bin\Debug\ProducerConsumer.pdb
+D:\University\1master_2\ParallelProgr\ProducerConsumer\ProducerConsumer\obj\Debug\ProducerConsumer.csprojAssemblyReference.cache
+D:\University\1master_2\ParallelProgr\ProducerConsumer\ProducerConsumer\obj\Debug\ProducerConsumer.exe
+D:\University\1master_2\ParallelProgr\ProducerConsumer\ProducerConsumer\obj\Debug\ProducerConsumer.pdb
+D:\University\1master_2\ParallelProgr\GIT\spbu-mm-parallel-programming\ProducerConsumer\ProducerConsumer\bin\Debug\ProducerConsumer.exe.config
+D:\University\1master_2\ParallelProgr\GIT\spbu-mm-parallel-programming\ProducerConsumer\ProducerConsumer\bin\Debug\ProducerConsumer.exe
+D:\University\1master_2\ParallelProgr\GIT\spbu-mm-parallel-programming\ProducerConsumer\ProducerConsumer\bin\Debug\ProducerConsumer.pdb
+D:\University\1master_2\ParallelProgr\GIT\spbu-mm-parallel-programming\ProducerConsumer\ProducerConsumer\obj\Debug\ProducerConsumer.csprojAssemblyReference.cache
+D:\University\1master_2\ParallelProgr\GIT\spbu-mm-parallel-programming\ProducerConsumer\ProducerConsumer\obj\Debug\ProducerConsumer.exe
+D:\University\1master_2\ParallelProgr\GIT\spbu-mm-parallel-programming\ProducerConsumer\ProducerConsumer\obj\Debug\ProducerConsumer.pdb
+D:\University\1master_2\ParallelProgr\GIT\spbu-mm-parallel-programming\ProducerConsumer\ProducerConsumer\obj\Debug\ProducerConsumer.csproj.CoreCompileInputs.cache
