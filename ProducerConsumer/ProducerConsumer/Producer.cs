@@ -12,7 +12,7 @@ namespace ProducerConsumer
         private Thread thread;
         private Random r;
 
-        public Producer(List<int> buffer, Mutex mutex, int i)
+        public Producer(ref List<int> buffer, ref Mutex mutex, int i)
         {
             r = new Random();
             buff = buffer;

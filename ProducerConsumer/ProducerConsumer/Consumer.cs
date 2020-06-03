@@ -11,7 +11,7 @@ namespace ProducerConsumer
         private bool fl = true;
         private Thread thread;
         private Random r;
-        public Consumer(List<int> buffer, Mutex mutex, int i)
+        public Consumer(ref List<int> buffer, ref Mutex mutex, int i)
         {
             r = new Random();
             buff = buffer;

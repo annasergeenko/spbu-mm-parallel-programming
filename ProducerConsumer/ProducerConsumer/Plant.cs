@@ -30,12 +30,12 @@ namespace ProducerConsumer
 
             for (int i = 0; i < con.Length; i++)
             {
-                con[i] = new Consumer(buffer, mutex, i);
+                con[i] = new Consumer(ref buffer, ref mutex, i);
             }
 
             for (int i = 0; i < pr.Length; i++)
             {
-                pr[i] = new Producer(buffer, mutex, i);
+                pr[i] = new Producer(ref buffer, ref mutex, i);
             }
                 
         }
